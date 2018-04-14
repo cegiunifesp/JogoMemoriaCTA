@@ -51,8 +51,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\AutoAcoes.cs" />
+     <Compile Include="Assets\Scripts\BotaoTentarNovamenteBehavior.cs" />
      <Compile Include="Assets\Scripts\CartaBehavior.cs" />
      <Compile Include="Assets\Scripts\CartaController.cs" />
+     <Compile Include="Assets\Scripts\MoedaBehavior.cs" />
+     <Compile Include="Assets\Scripts\MoedaController.cs" />
+     <Compile Include="Assets\Scripts\RelogioBehavior.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
