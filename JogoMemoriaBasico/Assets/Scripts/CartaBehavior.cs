@@ -21,7 +21,7 @@ public class CartaBehavior : MonoBehaviour {
     //Animacao
     private int girar;
     private float timer;
-    private const float timer_virar = 0.5f;
+    private const float timer_virar = 0.3f;
 
 
     void Awake()
@@ -55,6 +55,11 @@ public class CartaBehavior : MonoBehaviour {
     public int getID()
     {
         return id_carta;
+    }
+
+    public string getName()
+    {
+        return sprite_frente.name;
     }
 
 
@@ -115,8 +120,8 @@ public class CartaBehavior : MonoBehaviour {
             // gira
             transform.Rotate(new Vector3(0, 180 * girar, 0) * Time.deltaTime);
 
-            // Se ja foi ate a metade do caminho
-            if ((transform.eulerAngles.y > 90) && (transform.eulerAngles.y < 270))
+            // Se ja foi ate a metade do caminho 
+            if ((transform.eulerAngles.y > 90) && (transform.eulerAngles.y < 270)) // OBS: TEM ALGUM BUG QUE POR ALGUM MOTIVO NAO TA ENTRANDO AQUI E NAO TA TROCANDO O SPRITE
             {
                 // muda direcao do giro
                 girar = -1;
@@ -141,6 +146,12 @@ public class CartaBehavior : MonoBehaviour {
                     timer = 0f;
                 else
                     timer = timer_virar;
+
+                // muda sprite
+                if (selecionado || pareado)
+                    sr.sprite = sprite_frente;
+                else
+                    sr.sprite = sprite_costas;
 
             }
                 

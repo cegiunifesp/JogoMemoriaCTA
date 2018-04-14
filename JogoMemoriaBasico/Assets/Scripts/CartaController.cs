@@ -26,7 +26,16 @@ public class CartaController : MonoBehaviour{
 
     // Quantidade de cartas selecionadas
     private int selecionados;
-    
+
+    // Cartas esperando
+    private CartaBehavior c1, c2;
+
+    // Botoes
+    public GameObject BotaoTry;
+    public GameObject BotaoIniciar;
+
+
+
     void Start()
     {
         
@@ -68,6 +77,9 @@ public class CartaController : MonoBehaviour{
             matriz.RemoveAt(id);
 
         }
+
+        //Esconde botaotry
+        BotaoTry.SetActive(false);
     }
 
     // cria a matriz
@@ -86,7 +98,7 @@ public class CartaController : MonoBehaviour{
         // Cria pontos
         for (int i = 0; i < num_cartas_h; i++)
             for (int j = 0; j < num_cartas_v; j++)
-                matriz.Add(new Vector3(i * delta_x - largura/2 , j * delta_y - altura/2, -1));
+                matriz.Add(new Vector3(i * delta_x - largura/2 , j * delta_y - altura/2, -1) + transform.position);
 
         return 1;
 
@@ -115,24 +127,56 @@ public class CartaController : MonoBehaviour{
         // pra cada um faz o teste
         foreach (CartaBehavior c in transform.GetComponentsInChildren<CartaBehavior>())
             if (c.getSelecao())
-                if (selecionado == null)
-                    selecionado = c;
-                else if (selecionado.getID() == c.getID())
-                {
-                    print("Faz par");
-                    selecionado.setPareado();
-                    c.setPareado();
-                    addSelecionados(-2);
-                }
-                else
-                {
-                print("nao Faz par");
-                    selecionado.setNonPareado();
-                    c.setNonPareado();
-                    addSelecionados(-2);
-
-                }
+            if (selecionado == null)
+                selecionado = c;
+            else if (selecionado.getID() == c.getID())
+                Acertou(selecionado, c);
+            else
+                Errou(selecionado, c);
     }
 
+    private void Acertou(CartaBehavior c1, CartaBehavior c2)
+    {
+        print("Faz par");
+        c1.setPareado();
+        c2.setPareado();
+        addSelecionados(-2);
+        MoedaController.controller.Abrir(c1.getName());
+    }
+
+    private void Errou(CartaBehavior c1, CartaBehavior c2)
+    {
+        print("nao Faz par");
+        this.c1 = c1;
+        this.c2 = c2;
+        BotaoTry.SetActive(true);
+    }
+
+    public void TentarNovamente()
+    {
+        c1.setNonPareado();
+        c2.setNonPareado();
+        addSelecionados(-2);
+        BotaoTry.SetActive(false);
+    }
+
+    public void IniciarJogo()
+    {
+        BotaoIniciar.SetActive(false);
+    }
+
+    private void FimdeJogo()
+    {
+        BotaoIniciar.SetActive(true);
+    }
+        
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position + new Vector3(-largura / 2, altura / 2, 0), transform.position + new Vector3(largura / 2, altura / 2, 0));
+        Gizmos.DrawLine(transform.position + new Vector3(-largura / 2, -altura / 2, 0), transform.position + new Vector3(largura / 2, -altura / 2, 0));
+        Gizmos.DrawLine(transform.position + new Vector3(-largura / 2, -altura / 2, 0), transform.position + new Vector3(-largura / 2, altura / 2, 0));
+        Gizmos.DrawLine(transform.position + new Vector3(largura / 2, altura / 2, 0), transform.position + new Vector3(largura / 2, -altura / 2, 0));
+    }
 }
 
