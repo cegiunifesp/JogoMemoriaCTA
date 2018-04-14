@@ -27,6 +27,9 @@ public class CartaController : MonoBehaviour{
     // Quantidade de cartas selecionadas
     private int selecionados;
 
+    //Quantidade de cartas pareadas
+    private int pareados;
+
     // Cartas esperando
     private CartaBehavior c1, c2;
 
@@ -34,18 +37,121 @@ public class CartaController : MonoBehaviour{
     public GameObject BotaoTry;
     public GameObject BotaoIniciar;
 
+    // Relogio
+    public GameObject Relogio;
+
 
 
     void Start()
     {
         
-        selecionados = 0; // Inicia com 0 selecionadas
 
         // Faz com que exista apenas um controller
         if(controller == null)
             controller = this;
         else
             return;
+        
+        //Esconde botaotry
+        BotaoTry.SetActive(false);
+  
+    }
+
+    // cria a matriz
+    private int createMatriz()
+    {
+        // Se o numero de cartas nao bate com o de sprites da erro
+        if (num_cartas_h * num_cartas_v != Cartas.Count * 2)
+            return 0;
+
+        matriz = new List<Vector3>();
+
+        // Espaçamentos entre as cartas
+        float delta_x = largura / (num_cartas_h - 1);
+        float delta_y = altura / (num_cartas_v - 1);
+
+        // Cria pontos
+        for (int i = 0; i < num_cartas_h; i++)
+            for (int j = 0; j < num_cartas_v; j++)
+                matriz.Add(new Vector3(i * delta_x - largura/2 , j * delta_y - altura/2, -1) + transform.position);
+
+        return 1;
+
+    }
+
+    // Sempre que a selecao de uma carta muda é chamada essa funcao pra atualizar o numero de selecionados
+    public void addSelecionados(int i)
+    {
+        selecionados += i;
+
+    }
+
+    // retorna o numero de selecionados
+    public int getSelecionados()
+    {
+        return selecionados;
+    }
+
+    private void addPareados(int i)
+    {
+        pareados += 2;
+
+        if (pareados == Cartas.Count * 2)
+            FimdeJogo();
+    }
+
+    // teste se todos os selecionados sao iguais
+    public void testeSelecionados()
+    {
+        // Faz teste
+
+        // pega o primeiro selecionado
+        CartaBehavior selecionado = null;
+
+        // pra cada um faz o teste
+        foreach (CartaBehavior c in transform.GetComponentsInChildren<CartaBehavior>())
+            if (c.getSelecao())
+            if (selecionado == null)
+                selecionado = c;
+            else if (selecionado.getID() == c.getID())
+                Acertou(selecionado, c);
+            else
+                Errou(selecionado, c);
+    }
+
+    private void Acertou(CartaBehavior c1, CartaBehavior c2)
+    {
+        print("Faz par");
+        c1.setPareado();
+        c2.setPareado();
+        addSelecionados(-2);
+        addPareados(2);
+        MoedaController.controller.Abrir(c1.getName());
+    }
+
+    private void Errou(CartaBehavior c1, CartaBehavior c2)
+    {
+        print("nao Faz par");
+        this.c1 = c1;
+        this.c2 = c2;
+        BotaoTry.SetActive(true);
+    }
+
+    public void TentarNovamente()
+    {
+        c1.setNonPareado();
+        c2.setNonPareado();
+        addSelecionados(-2);
+        BotaoTry.SetActive(false);
+    }
+
+    public void IniciarJogo()
+    {
+
+        // Tem que destruir todas as cartas no jogo aqui para quando reiniciar
+
+        selecionados = 0; // Inicia com 0 selecionadas
+        pareados = 0; // Inicia pareados com 0
 
 
         // Cria a matriz de posicoes
@@ -77,97 +183,14 @@ public class CartaController : MonoBehaviour{
             matriz.RemoveAt(id);
 
         }
-
-        //Esconde botaotry
-        BotaoTry.SetActive(false);
-    }
-
-    // cria a matriz
-    private int createMatriz()
-    {
-        // Se o numero de cartas nao bate com o de sprites da erro
-        if (num_cartas_h * num_cartas_v != Cartas.Count * 2)
-            return 0;
-
-        matriz = new List<Vector3>();
-
-        // Espaçamentos entre as cartas
-        float delta_x = largura / (num_cartas_h - 1);
-        float delta_y = altura / (num_cartas_v - 1);
-
-        // Cria pontos
-        for (int i = 0; i < num_cartas_h; i++)
-            for (int j = 0; j < num_cartas_v; j++)
-                matriz.Add(new Vector3(i * delta_x - largura/2 , j * delta_y - altura/2, -1) + transform.position);
-
-        return 1;
-
-    }
-
-    // Sempre que a selecao de uma carta muda é chamada essa funcao pra atualizar o numero de selecionados
-    public void addSelecionados(int i)
-    {
-        selecionados += i;
-    }
-
-    // retorna o numero de selecionados
-    public int getSelecionados()
-    {
-        return selecionados;
-    }
-
-    // teste se todos os selecionados sao iguais
-    public void testeSelecionados()
-    {
-        // Faz teste
-
-        // pega o primeiro selecionado
-        CartaBehavior selecionado = null;
-
-        // pra cada um faz o teste
-        foreach (CartaBehavior c in transform.GetComponentsInChildren<CartaBehavior>())
-            if (c.getSelecao())
-            if (selecionado == null)
-                selecionado = c;
-            else if (selecionado.getID() == c.getID())
-                Acertou(selecionado, c);
-            else
-                Errou(selecionado, c);
-    }
-
-    private void Acertou(CartaBehavior c1, CartaBehavior c2)
-    {
-        print("Faz par");
-        c1.setPareado();
-        c2.setPareado();
-        addSelecionados(-2);
-        MoedaController.controller.Abrir(c1.getName());
-    }
-
-    private void Errou(CartaBehavior c1, CartaBehavior c2)
-    {
-        print("nao Faz par");
-        this.c1 = c1;
-        this.c2 = c2;
-        BotaoTry.SetActive(true);
-    }
-
-    public void TentarNovamente()
-    {
-        c1.setNonPareado();
-        c2.setNonPareado();
-        addSelecionados(-2);
-        BotaoTry.SetActive(false);
-    }
-
-    public void IniciarJogo()
-    {
+            
         BotaoIniciar.SetActive(false);
     }
 
     private void FimdeJogo()
     {
         BotaoIniciar.SetActive(true);
+        Relogio.GetComponent<RelogioBehavior>().Turn(false);
     }
         
     void OnDrawGizmos()
